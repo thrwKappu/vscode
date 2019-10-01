@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { CharCode } from 'vs/base/common/charCode';
 import * as strings from 'vs/base/common/strings';
+import { WordCharacterClass, WordCharacterClassifier, getMapForWordSeparators } from 'vs/editor/common/controller/wordCharacterClassifier';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
-import { FindMatch, EndOfLinePreference } from 'vs/editor/common/model';
-import { CharCode } from 'vs/base/common/charCode';
+import { EndOfLinePreference, FindMatch } from 'vs/editor/common/model';
 import { TextModel } from 'vs/editor/common/model/textModel';
-import { getMapForWordSeparators, WordCharacterClassifier, WordCharacterClass } from 'vs/editor/common/controller/wordCharacterClassifier';
 
 const LIMIT_FIND_COUNT = 999;
 
@@ -45,7 +45,8 @@ export class SearchParams {
 				matchCase: this.matchCase,
 				wholeWord: false,
 				multiline: multiline,
-				global: true
+				global: true,
+				unicode: true
 			});
 		} catch (err) {
 			return null;
@@ -509,8 +510,8 @@ export function isValidMatch(wordSeparators: WordCharacterClassifier, text: stri
 }
 
 export class Searcher {
-	private _wordSeparators: WordCharacterClassifier | null;
-	private _searchRegex: RegExp;
+	private readonly _wordSeparators: WordCharacterClassifier | null;
+	private readonly _searchRegex: RegExp;
 	private _prevMatchStartIndex: number;
 	private _prevMatchLength: number;
 
@@ -545,6 +546,12 @@ export class Searcher {
 			const matchStartIndex = m.index;
 			const matchLength = m[0].length;
 			if (matchStartIndex === this._prevMatchStartIndex && matchLength === this._prevMatchLength) {
+				if (matchLength === 0) {
+					// the search result is an empty string and won't advance `regex.lastIndex`, so `regex.exec` will stuck here
+					// we attempt to recover from that by advancing by one
+					this._searchRegex.lastIndex += 1;
+					continue;
+				}
 				// Exit early if the regex matches the same range twice
 				return null;
 			}

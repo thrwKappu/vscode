@@ -4,19 +4,19 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as nls from 'vs/nls';
-import { Selection } from 'vs/editor/common/core/selection';
-import { ServicesAccessor, registerEditorContribution, EditorAction, registerEditorAction } from 'vs/editor/browser/editorExtensions';
 import { KeyCode, KeyMod } from 'vs/base/common/keyCodes';
 import { Disposable } from 'vs/base/common/lifecycle';
+import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
+import { EditorAction, ServicesAccessor, registerEditorAction, registerEditorContribution } from 'vs/editor/browser/editorExtensions';
+import { Selection } from 'vs/editor/common/core/selection';
 import { IEditorContribution, ScrollType } from 'vs/editor/common/editorCommon';
 import { EditorContextKeys } from 'vs/editor/common/editorContextKeys';
-import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { KeybindingWeight } from 'vs/platform/keybinding/common/keybindingsRegistry';
 
 class CursorState {
-	readonly selections: Selection[];
+	readonly selections: readonly Selection[];
 
-	constructor(selections: Selection[]) {
+	constructor(selections: readonly Selection[]) {
 		this.selections = selections;
 	}
 
@@ -119,7 +119,7 @@ export class CursorUndo extends EditorAction {
 			id: 'cursorUndo',
 			label: nls.localize('cursor.undo', "Soft Undo"),
 			alias: 'Soft Undo',
-			precondition: null,
+			precondition: undefined,
 			kbOpts: {
 				kbExpr: EditorContextKeys.textInputFocus,
 				primary: KeyMod.CtrlCmd | KeyCode.KEY_U,

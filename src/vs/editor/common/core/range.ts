@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Position, IPosition } from 'vs/editor/common/core/position';
+import { IPosition, Position } from 'vs/editor/common/core/position';
 
 /**
  * A range in the editor. This interface is suitable for serialization.
@@ -121,6 +121,32 @@ export class Range {
 			return false;
 		}
 		if (otherRange.endLineNumber === range.endLineNumber && otherRange.endColumn > range.endColumn) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Test if `range` is strictly in this range. `range` must start after and end before this range for the result to be true.
+	 */
+	public strictContainsRange(range: IRange): boolean {
+		return Range.strictContainsRange(this, range);
+	}
+
+	/**
+	 * Test if `otherRange` is strinctly in `range` (must start after, and end before). If the ranges are equal, will return false.
+	 */
+	public static strictContainsRange(range: IRange, otherRange: IRange): boolean {
+		if (otherRange.startLineNumber < range.startLineNumber || otherRange.endLineNumber < range.startLineNumber) {
+			return false;
+		}
+		if (otherRange.startLineNumber > range.endLineNumber || otherRange.endLineNumber > range.endLineNumber) {
+			return false;
+		}
+		if (otherRange.startLineNumber === range.startLineNumber && otherRange.startColumn <= range.startColumn) {
+			return false;
+		}
+		if (otherRange.endLineNumber === range.endLineNumber && otherRange.endColumn >= range.endColumn) {
 			return false;
 		}
 		return true;

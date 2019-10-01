@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IInplaceReplaceSupportResult } from 'vs/editor/common/modes';
 import { IRange } from 'vs/editor/common/core/range';
+import { IInplaceReplaceSupportResult } from 'vs/editor/common/modes';
 
 export class BasicInplaceReplace {
 
@@ -64,7 +64,7 @@ export class BasicInplaceReplace {
 		return null;
 	}
 
-	private _defaultValueSet: string[][] = [
+	private readonly _defaultValueSet: string[][] = [
 		['true', 'false'],
 		['True', 'False'],
 		['Private', 'Public', 'Friend', 'ReadOnly', 'Partial', 'Protected', 'WriteOnly'],

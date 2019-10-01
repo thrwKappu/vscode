@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as strings from 'vs/base/common/strings';
-import { IState, LanguageId } from 'vs/editor/common/modes';
-import { LineTokens, IViewLineTokens } from 'vs/editor/common/core/lineTokens';
 import { CharCode } from 'vs/base/common/charCode';
-import { NULL_STATE, nullTokenize2 } from 'vs/editor/common/modes/nullMode';
+import * as strings from 'vs/base/common/strings';
+import { IViewLineTokens, LineTokens } from 'vs/editor/common/core/lineTokens';
 import { TokenizationResult2 } from 'vs/editor/common/core/token';
+import { IState, LanguageId } from 'vs/editor/common/modes';
+import { NULL_STATE, nullTokenize2 } from 'vs/editor/common/modes/nullMode';
 
 export interface IReducedTokenizationSupport {
 	getInitialState(): IState;
@@ -75,6 +75,10 @@ export function tokenizeLineToHTML(text: string, viewLineTokens: IViewLineTokens
 				case CharCode.CarriageReturn:
 					// zero width space, because carriage return would introduce a line break
 					partContent += '&#8203';
+					break;
+
+				case CharCode.Space:
+					partContent += '&nbsp;';
 					break;
 
 				default:

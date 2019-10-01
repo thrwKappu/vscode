@@ -4,17 +4,17 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IDisposable } from 'vs/base/common/lifecycle';
+import { IActiveCodeEditor } from 'vs/editor/browser/editorBrowser';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
+import { FindMatch, IModelDecorationsChangeAccessor, IModelDeltaDecoration, OverviewRulerLane, TrackedRangeStickiness, MinimapPosition } from 'vs/editor/common/model';
 import { ModelDecorationOptions } from 'vs/editor/common/model/textModel';
-import { overviewRulerFindMatchForeground } from 'vs/platform/theme/common/colorRegistry';
+import { overviewRulerFindMatchForeground, minimapFindMatch } from 'vs/platform/theme/common/colorRegistry';
 import { themeColorFromId } from 'vs/platform/theme/common/themeService';
-import { IActiveCodeEditor } from 'vs/editor/browser/editorBrowser';
-import { IModelDecorationsChangeAccessor, FindMatch, IModelDeltaDecoration, TrackedRangeStickiness, OverviewRulerLane } from 'vs/editor/common/model';
 
 export class FindDecorations implements IDisposable {
 
-	private _editor: IActiveCodeEditor;
+	private readonly _editor: IActiveCodeEditor;
 	private _decorations: string[];
 	private _overviewRulerApproximateDecorations: string[];
 	private _findScopeDecorationId: string | null;
@@ -80,8 +80,7 @@ export class FindDecorations implements IDisposable {
 
 	public getCurrentMatchesPosition(desiredRange: Range): number {
 		let candidates = this._editor.getModel().getDecorationsInRange(desiredRange);
-		for (let i = 0, len = candidates.length; i < len; i++) {
-			const candidate = candidates[i];
+		for (const candidate of candidates) {
 			const candidateOpts = candidate.options;
 			if (candidateOpts === FindDecorations._FIND_MATCH_DECORATION || candidateOpts === FindDecorations._CURRENT_FIND_MATCH_DECORATION) {
 				return this._getDecorationIndex(candidate.id);
@@ -270,6 +269,10 @@ export class FindDecorations implements IDisposable {
 		overviewRuler: {
 			color: themeColorFromId(overviewRulerFindMatchForeground),
 			position: OverviewRulerLane.Center
+		},
+		minimap: {
+			color: themeColorFromId(minimapFindMatch),
+			position: MinimapPosition.Inline
 		}
 	});
 
@@ -280,6 +283,10 @@ export class FindDecorations implements IDisposable {
 		overviewRuler: {
 			color: themeColorFromId(overviewRulerFindMatchForeground),
 			position: OverviewRulerLane.Center
+		},
+		minimap: {
+			color: themeColorFromId(minimapFindMatch),
+			position: MinimapPosition.Inline
 		}
 	});
 

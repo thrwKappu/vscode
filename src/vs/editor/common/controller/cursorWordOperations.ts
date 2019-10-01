@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SingleCursorState, CursorConfiguration, ICursorSimpleModel } from 'vs/editor/common/controller/cursorCommon';
-import { Position } from 'vs/editor/common/core/position';
-import { WordCharacterClassifier, WordCharacterClass, getMapForWordSeparators } from 'vs/editor/common/controller/wordCharacterClassifier';
+import { CharCode } from 'vs/base/common/charCode';
 import * as strings from 'vs/base/common/strings';
+import { CursorConfiguration, ICursorSimpleModel, SingleCursorState } from 'vs/editor/common/controller/cursorCommon';
+import { WordCharacterClass, WordCharacterClassifier, getMapForWordSeparators } from 'vs/editor/common/controller/wordCharacterClassifier';
+import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection } from 'vs/editor/common/core/selection';
-import { CharCode } from 'vs/base/common/charCode';
 
 interface IFindWordResult {
 	/**
@@ -39,7 +39,8 @@ const enum WordType {
 export const enum WordNavigationType {
 	WordStart = 0,
 	WordStartFast = 1,
-	WordEnd = 2
+	WordEnd = 2,
+	WordAccessibility = 3 // Respect chrome defintion of a word
 }
 
 export class WordOperations {
@@ -202,6 +203,18 @@ export class WordOperations {
 			return new Position(lineNumber, prevWordOnLine ? prevWordOnLine.start + 1 : 1);
 		}
 
+		if (wordNavigationType === WordNavigationType.WordAccessibility) {
+			while (
+				prevWordOnLine
+				&& prevWordOnLine.wordType === WordType.Separator
+			) {
+				// Skip over words made up of only separators
+				prevWordOnLine = WordOperations._findPreviousWordOnLine(wordSeparators, model, new Position(lineNumber, prevWordOnLine.start + 1));
+			}
+
+			return new Position(lineNumber, prevWordOnLine ? prevWordOnLine.start + 1 : 1);
+		}
+
 		// We are stopping at the ending of words
 
 		if (prevWordOnLine && column <= prevWordOnLine.end + 1) {
@@ -252,8 +265,10 @@ export class WordOperations {
 		let lineNumber = position.lineNumber;
 		let column = position.column;
 
+		let movedDown = false;
 		if (column === model.getLineMaxColumn(lineNumber)) {
 			if (lineNumber < model.getLineCount()) {
+				movedDown = true;
 				lineNumber = lineNumber + 1;
 				column = 1;
 			}
@@ -273,8 +288,23 @@ export class WordOperations {
 			} else {
 				column = model.getLineMaxColumn(lineNumber);
 			}
+		} else if (wordNavigationType === WordNavigationType.WordAccessibility) {
+
+			while (
+				nextWordOnLine
+				&& nextWordOnLine.wordType === WordType.Separator
+			) {
+				// Skip over a word made up of one single separator
+				nextWordOnLine = WordOperations._findNextWordOnLine(wordSeparators, model, new Position(lineNumber, nextWordOnLine.end + 1));
+			}
+
+			if (nextWordOnLine) {
+				column = nextWordOnLine.end + 1;
+			} else {
+				column = model.getLineMaxColumn(lineNumber);
+			}
 		} else {
-			if (nextWordOnLine && column >= nextWordOnLine.start + 1) {
+			if (nextWordOnLine && !movedDown && column >= nextWordOnLine.start + 1) {
 				nextWordOnLine = WordOperations._findNextWordOnLine(wordSeparators, model, new Position(lineNumber, nextWordOnLine.end + 1));
 			}
 			if (nextWordOnLine) {
@@ -613,6 +643,6 @@ export class WordPartOperations extends WordOperations {
 	}
 }
 
-function enforceDefined<T>(arr: (T | undefined | null)[]): T[] {
+function enforceDefined<T>(arr: Array<T | undefined | null>): T[] {
 	return <T[]>arr.filter(el => Boolean(el));
 }

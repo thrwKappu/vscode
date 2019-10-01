@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ViewEventHandler } from 'vs/editor/common/viewModel/viewEventHandler';
-import { ViewContext } from 'vs/editor/common/view/viewContext';
-import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
 import { FastDomNode } from 'vs/base/browser/fastDomNode';
+import { RenderingContext, RestrictedRenderingContext } from 'vs/editor/common/view/renderingContext';
+import { ViewContext } from 'vs/editor/common/view/viewContext';
+import { ViewEventHandler } from 'vs/editor/common/viewModel/viewEventHandler';
 
 export abstract class ViewPart extends ViewEventHandler {
 
@@ -50,7 +50,7 @@ export class PartFingerprints {
 	}
 
 	public static read(target: Element): PartFingerprint {
-		let r = target.getAttribute('data-mprt');
+		const r = target.getAttribute('data-mprt');
 		if (r === null) {
 			return PartFingerprint.None;
 		}
@@ -70,7 +70,7 @@ export class PartFingerprints {
 			child = child.parentElement;
 		}
 
-		let r = new Uint8Array(resultLen);
+		const r = new Uint8Array(resultLen);
 		for (let i = 0; i < resultLen; i++) {
 			r[i] = result[resultLen - i - 1];
 		}

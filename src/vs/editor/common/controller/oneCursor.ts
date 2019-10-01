@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { SingleCursorState, CursorContext, CursorState } from 'vs/editor/common/controller/cursorCommon';
+import { CursorContext, CursorState, SingleCursorState } from 'vs/editor/common/controller/cursorCommon';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
 import { Selection, SelectionDirection } from 'vs/editor/common/core/selection';
@@ -11,8 +11,8 @@ import { TrackedRangeStickiness } from 'vs/editor/common/model';
 
 export class OneCursor {
 
-	public modelState: SingleCursorState;
-	public viewState: SingleCursorState;
+	public modelState!: SingleCursorState;
+	public viewState!: SingleCursorState;
 
 	private _selTrackedRange: string | null;
 	private _trackSelection: boolean;

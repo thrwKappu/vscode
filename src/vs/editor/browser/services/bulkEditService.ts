@@ -3,17 +3,17 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
 import { WorkspaceEdit } from 'vs/editor/common/modes';
-import { ICodeEditor } from '../editorBrowser';
-import { IProgressRunner } from 'vs/platform/progress/common/progress';
+import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
+import { IProgress, IProgressStep } from 'vs/platform/progress/common/progress';
 
 export const IBulkEditService = createDecorator<IBulkEditService>('IWorkspaceEditService');
 
 
 export interface IBulkEditOptions {
 	editor?: ICodeEditor;
-	progress?: IProgressRunner;
+	progress?: IProgress<IProgressStep>;
 }
 
 export interface IBulkEditResult {
@@ -21,8 +21,8 @@ export interface IBulkEditResult {
 }
 
 export interface IBulkEditService {
-	_serviceBrand: any;
+	_serviceBrand: undefined;
 
-	apply(edit: WorkspaceEdit, options: IBulkEditOptions): Promise<IBulkEditResult>;
+	apply(edit: WorkspaceEdit, options?: IBulkEditOptions): Promise<IBulkEditResult>;
 }
 

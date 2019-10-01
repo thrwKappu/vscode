@@ -3,31 +3,31 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IResourceInput } from 'vs/platform/editor/common/editor';
-import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
-import { CodeEditorServiceImpl } from 'vs/editor/browser/services/codeEditorServiceImpl';
-import { ScrollType } from 'vs/editor/common/editorCommon';
 import { windowOpenNoOpener } from 'vs/base/browser/dom';
 import { Schemas } from 'vs/base/common/network';
-import { IRange } from 'vs/editor/common/core/range';
-import { ITextModel } from 'vs/editor/common/model';
 import { URI } from 'vs/base/common/uri';
+import { ICodeEditor } from 'vs/editor/browser/editorBrowser';
+import { CodeEditorServiceImpl } from 'vs/editor/browser/services/codeEditorServiceImpl';
+import { IRange } from 'vs/editor/common/core/range';
+import { ScrollType } from 'vs/editor/common/editorCommon';
+import { ITextModel } from 'vs/editor/common/model';
+import { IResourceInput } from 'vs/platform/editor/common/editor';
 
 export class StandaloneCodeEditorServiceImpl extends CodeEditorServiceImpl {
 
-	public getActiveCodeEditor(): ICodeEditor | null {
-		return null; // not supported in the standalone case
+	public getActiveCodeEditor(): ICodeEditor | undefined {
+		return undefined; // not supported in the standalone case
 	}
 
-	public openCodeEditor(input: IResourceInput, source: ICodeEditor | null, sideBySide?: boolean): Thenable<ICodeEditor | null> {
+	public openCodeEditor(input: IResourceInput, source: ICodeEditor | undefined, sideBySide?: boolean): Promise<ICodeEditor | undefined> {
 		if (!source) {
-			return Promise.resolve(null);
+			return Promise.resolve(undefined);
 		}
 
 		return Promise.resolve(this.doOpenEditor(source, input));
 	}
 
-	private doOpenEditor(editor: ICodeEditor, input: IResourceInput): ICodeEditor | null {
+	private doOpenEditor(editor: ICodeEditor, input: IResourceInput): ICodeEditor | undefined {
 		const model = this.findModel(editor, input.resource);
 		if (!model) {
 			if (input.resource) {
@@ -39,7 +39,7 @@ export class StandaloneCodeEditorServiceImpl extends CodeEditorServiceImpl {
 					return editor;
 				}
 			}
-			return null;
+			return undefined;
 		}
 
 		const selection = <IRange>(input.options ? input.options.selection : null);

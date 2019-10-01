@@ -3,15 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Disposable } from 'vs/base/common/lifecycle';
 import { IKeyboardEvent } from 'vs/base/browser/keyboardEvent';
+import { Disposable } from 'vs/base/common/lifecycle';
+import { MouseTarget } from 'vs/editor/browser/controller/mouseTarget';
+import { IEditorMouseEvent, IMouseTarget, IPartialEditorMouseEvent, MouseTargetType } from 'vs/editor/browser/editorBrowser';
 import { Position } from 'vs/editor/common/core/position';
 import { Range } from 'vs/editor/common/core/range';
-import { IViewModel } from 'vs/editor/common/viewModel/viewModel';
 import { IScrollEvent } from 'vs/editor/common/editorCommon';
-import { IEditorMouseEvent, IMouseTarget, MouseTargetType, IPartialEditorMouseEvent } from 'vs/editor/browser/editorBrowser';
-import { MouseTarget } from 'vs/editor/browser/controller/mouseTarget';
 import * as viewEvents from 'vs/editor/common/view/viewEvents';
+import { IViewModel } from 'vs/editor/common/viewModel/viewModel';
+import { IMouseWheelEvent } from 'vs/base/browser/mouseEvent';
 
 export interface EventCallback<T> {
 	(event: T): void;
@@ -31,8 +32,9 @@ export class ViewOutgoingEvents extends Disposable {
 	public onMouseDown: EventCallback<IEditorMouseEvent> | null = null;
 	public onMouseDrag: EventCallback<IEditorMouseEvent> | null = null;
 	public onMouseDrop: EventCallback<IPartialEditorMouseEvent> | null = null;
+	public onMouseWheel: EventCallback<IMouseWheelEvent> | null = null;
 
-	private _viewModel: IViewModel;
+	private readonly _viewModel: IViewModel;
 
 	constructor(viewModel: IViewModel) {
 		super();
@@ -47,13 +49,13 @@ export class ViewOutgoingEvents extends Disposable {
 
 	public emitViewFocusGained(): void {
 		if (this.onDidGainFocus) {
-			this.onDidGainFocus(void 0);
+			this.onDidGainFocus(undefined);
 		}
 	}
 
 	public emitViewFocusLost(): void {
 		if (this.onDidLoseFocus) {
-			this.onDidLoseFocus(void 0);
+			this.onDidLoseFocus(undefined);
 		}
 	}
 
@@ -108,6 +110,12 @@ export class ViewOutgoingEvents extends Disposable {
 	public emitMouseDrop(e: IPartialEditorMouseEvent): void {
 		if (this.onMouseDrop) {
 			this.onMouseDrop(this._convertViewToModelMouseEvent(e));
+		}
+	}
+
+	public emitMouseWheel(e: IMouseWheelEvent): void {
+		if (this.onMouseWheel) {
+			this.onMouseWheel(e);
 		}
 	}
 
